@@ -1,0 +1,33 @@
+appId: com.vision4rio.chromatoolstudio
+productName: Chroma Tool Studio
+copyright: Copyright (c) VISION4RIO
+artifactName: Chroma-Tool-Studio-Setup-${version}.${ext}
+directories:
+  output: release
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+extraMetadata:
+  main: electron/main.cjs
+win:
+  signAndEditExecutable: false
+  verifyUpdateCodeSignature: false
+  target:
+    - target: nsis
+      arch:
+        - x64
+  executableName: ChromaToolStudio
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: false
+  allowElevation: true
+  perMachine: true
+  uninstallDisplayName: Chroma Tool Studio 1.0.0
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  runAfterFinish: true
+  shortcutName: Chroma Tool Studio
+compression: maximum
+asar: true
+removePackageScripts: true
