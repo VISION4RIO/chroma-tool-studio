@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.1] - 2026-03-29
+## [1.0.1] - 2026-04-19
 
 ### Added
 - Batch DDS processing now skips defective files and continues processing.
