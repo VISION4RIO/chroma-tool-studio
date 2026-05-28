@@ -2,11 +2,6 @@ import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dxt from "dxt-js";
 import parseDds from "parse-dds";
-import { AnimatePresence } from "framer-motion";
-import { useI18n } from "./i18n";
-import { SettingsModal } from "./components/SettingsModal";
-import { ChangelogModal } from "./components/ChangelogModal";
-import { VfxBlockEditorTab } from "./components/VfxBlockEditorTab";
 
 type RGB = [number, number, number];
 type HSV = [number, number, number];
@@ -39,7 +34,7 @@ type RecolorStats = {
 type VfxMode = "safe" | "aggressive";
 type PythonKind = "vfx" | "skin" | "animation";
 
-type ActiveTab = "assets" | "vfxRecolor" | "vfxLibrary" | "vfxBlockEditor";
+type ActiveTab = "assets" | "vfxRecolor" | "vfxLibrary";
 
 type VfxSlot = {
   id: string;
@@ -1394,11 +1389,6 @@ async function saveToWebDirectoryHandle(handle: FileSystemDirectoryHandle, relat
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("assets");
-  const { t } = useI18n();
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [changelogOpen, setChangelogOpen] = useState(false);
-  const [splashOpen, setSplashOpen] = useState(() => { try { return window.localStorage.getItem("cts.splashSeenV2") !== "1"; } catch { return true; } });
-  useEffect(() => { if (!splashOpen) return; const tm = window.setTimeout(() => { setSplashOpen(false); try { window.localStorage.setItem("cts.splashSeenV2", "1"); } catch {} }, 5000); return () => window.clearTimeout(tm); }, [splashOpen]);
   const [pngAssets, setPngAssets] = useState<PngAsset[]>([]);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [recolorFile, setRecolorFile] = useState<File | null>(null);
@@ -2408,17 +2398,10 @@ export default function App() {
         transition={{ duration: 0.55 }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_10%,rgba(56,189,248,0.24),transparent_42%),radial-gradient(circle_at_80%_15%,rgba(167,139,250,0.24),transparent_38%)]" />
-        <div className="relative mx-auto w-full max-w-7xl px-6 py-3 lg:px-10">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold tracking-tight text-white">{t("topbar.appName")}</h1>
-              <span className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cyan-200">v2.0</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setChangelogOpen(true)} title={t("topbar.changelog")} className="flex h-9 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 text-sm text-zinc-200 transition hover:bg-white/10">📋 {t("topbar.changelog")}</button>
-              <button type="button" onClick={() => setSettingsOpen(true)} title={t("topbar.settings")} className="flex h-9 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 text-sm text-zinc-200 transition hover:bg-white/10">⚙ {t("topbar.settings")}</button>
-            </div>
-          </div>
+        <div className="relative mx-auto w-full max-w-7xl px-6 py-9 lg:px-10">
+          <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Chroma Tool Studio</h1>
+          <p className="mt-3 max-w-3xl text-zinc-300">Per-file texture zone detection, individual recolor profiles, and robust VFX .py recolor.</p>
+          <p className="mt-3 text-xs uppercase tracking-[0.16em] text-zinc-400">Credits: VISION4RIO</p>
         </div>
       </motion.header>
 
@@ -2517,7 +2500,7 @@ export default function App() {
         </div>
       )}
 
-      <main className={`mx-auto w-full px-6 py-4 lg:px-10 ${activeTab === "vfxBlockEditor" ? "max-w-[1800px]" : "grid max-w-7xl gap-8 lg:grid-cols-[1.28fr_0.72fr]"}`}>
+      <main className="mx-auto grid w-full max-w-7xl gap-8 px-6 py-8 lg:grid-cols-[1.28fr_0.72fr] lg:px-10">
         <section className="space-y-6">
           <div className="flex flex-wrap gap-3">
             <button
@@ -2527,7 +2510,7 @@ export default function App() {
                 activeTab === "assets" ? "bg-cyan-400 text-zinc-950" : "border border-white/15 bg-white/5 text-zinc-200 hover:bg-white/10"
               }`}
             >
-              {t("tabs.assets")}
+              Assets (DDS)
             </button>
             <button
               type="button"
@@ -2536,42 +2519,29 @@ export default function App() {
                 activeTab === "vfxRecolor" ? "bg-cyan-400 text-zinc-950" : "border border-white/15 bg-white/5 text-zinc-200 hover:bg-white/10"
               }`}
             >
-              {t("tabs.vfxRecolor")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("vfxBlockEditor")}
-              className={`h-10 rounded-lg px-4 text-sm transition ${
-                activeTab === "vfxBlockEditor" ? "bg-cyan-400 text-zinc-950" : "border border-white/15 bg-white/5 text-zinc-200 hover:bg-white/10"
-              }`}
-            >
-              {t("tabs.vfxBlockEditor")}
+              VFX Recolor (.py)
             </button>
           </div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
             <h2 className="text-xl font-medium text-white">
-              {activeTab === "assets" ? t("app.assetIntake") : activeTab === "vfxBlockEditor" ? t("tabs.vfxBlockEditor") : t("app.vfxRecolorIntake")}
+              {activeTab === "assets" ? "Asset Intake" : "VFX Recolor Intake"}
             </h2>
-            {activeTab === "vfxBlockEditor" ? (
-              <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40" style={{ height: "calc(100vh - 220px)", minHeight: "600px" }}>
-                <VfxBlockEditorTab />
-              </div>
-            ) : activeTab === "assets" ? (
+            {activeTab === "assets" ? (
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   className="h-12 rounded-lg border border-white/15 bg-white/5 px-4 text-left transition hover:bg-white/10"
                   onClick={() => pngFolderInputRef.current?.click()}
                 >
-                  {t("app.loadDdsFolder")}
+                  Load DDS Folder
                 </button>
                 <button
                   type="button"
                   className="h-12 rounded-lg border border-white/15 bg-white/5 px-4 text-left transition hover:bg-white/10"
                   onClick={() => pngFilesInputRef.current?.click()}
                 >
-                  {t("app.loadDdsFiles")}
+                  Load DDS Files
                 </button>
               </div>
             ) : (
@@ -2581,7 +2551,7 @@ export default function App() {
                   className="h-12 w-full rounded-lg border border-white/15 bg-white/5 px-4 text-left transition hover:bg-white/10"
                   onClick={() => vfxInputRef.current?.click()}
                 >
-                  {t("app.loadSingleVfx")}
+                  Load Single .py for VFX Recolor
                 </button>
               </div>
             )}
@@ -2632,20 +2602,20 @@ export default function App() {
 
           {activeTab === "assets" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.06 }}>
-              <h2 className="text-xl font-medium text-white">{t("app.selectedAssetSources")}</h2>
+              <h2 className="text-xl font-medium text-white">Selected Asset Sources</h2>
               <div className="mt-3 text-xs text-zinc-400">
                 {assetFolders.length > 0 ? `Folders: ${assetFolders.join(", ")}` : "Loaded by file selection"}
               </div>
               <div className="mt-3 max-h-28 overflow-auto rounded-lg border border-white/10 bg-white/[0.03] p-2 text-xs text-zinc-300">
                 {pngAssets.length === 0 ? (
-                  <p className="text-zinc-500">{t("app.noDdsFilesSelected")}</p>
+                  <p className="text-zinc-500">No DDS files selected.</p>
                 ) : (
                   pngAssets.map((asset) => <div key={asset.id}>{asset.relativePath}</div>)
                 )}
               </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <h2 className="text-xl font-medium text-white">{t("app.ddsProfilesPerFile")}</h2>
+                <h2 className="text-xl font-medium text-white">DDS Profiles Per File</h2>
                 <span className="text-xs text-zinc-400">{pngAssets.length} DDS loaded</span>
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -2654,7 +2624,7 @@ export default function App() {
                   onChange={(e) => setSelectedAssetId(e.target.value || null)}
                   className="min-w-[330px] rounded-lg border border-white/15 bg-zinc-900 px-3 py-2 text-sm text-zinc-100"
                 >
-                  {pngAssets.length === 0 && <option value="">{t("app.noDdsLoaded")}</option>}
+                  {pngAssets.length === 0 && <option value="">No DDS loaded</option>}
                   {pngAssets.map((asset) => (
                     <option key={asset.id} value={asset.id}>
                       {asset.relativePath}
@@ -2667,7 +2637,7 @@ export default function App() {
                   onClick={() => selectedAssetId && ensureAssetAnalyzed(selectedAssetId, true)}
                   className="h-10 rounded-lg border border-white/20 bg-white/5 px-4 text-sm transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {t("app.reDetectSelected")}
+                  Re-detect Selected
                 </button>
                 <button
                   type="button"
@@ -2675,13 +2645,13 @@ export default function App() {
                   onClick={applySelectedProfileToAllAssets}
                   className="h-10 rounded-lg border border-white/20 bg-white/5 px-4 text-sm transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {t("app.applyProfileToAll")}
+                  Apply Profile to All DDS
                 </button>
               </div>
 
-              <p className="mt-3 text-sm text-zinc-400">{t("app.eachDdsHasZones")}</p>
+              <p className="mt-3 text-sm text-zinc-400">Each DDS has its own isolated color zones. Edit one file without affecting the others.</p>
               <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-cyan-300/25 bg-cyan-400/10 px-3 py-2 text-xs text-cyan-100">
-                <span className="font-medium">{t("app.ddsSupport")}</span>
+                <span className="font-medium">DDS support:</span>
                 <span>DXT1 / DXT3 / DXT5 (BC1 / BC2 / BC3)</span>
               </div>
 
@@ -2704,14 +2674,14 @@ export default function App() {
                     onClick={applyPresetToSelectedAsset}
                     className="h-9 rounded-lg bg-cyan-400 px-3 text-sm font-medium text-zinc-950 transition hover:bg-cyan-300"
                   >
-                    {t("app.applyPresetEnabled")}
+                    Apply Preset to Enabled Zones
                   </button>
                   <button
                     type="button"
                     onClick={applyPresetToAllAssets}
                     className="h-9 rounded-lg border border-white/20 bg-white/5 px-3 text-sm transition hover:bg-white/10"
                   >
-                    {t("app.applyPresetAllFiles")}
+                    Apply Preset to All DDS Files
                   </button>
                 </div>
                 <div className="mt-3 flex items-center gap-3 text-xs text-zinc-300">
@@ -2723,7 +2693,7 @@ export default function App() {
               </div>
 
               <div className="mt-4 space-y-3">
-                {(selectedAsset?.zones ?? []).length === 0 && <p className="text-sm text-zinc-500">{t("app.noZonesDetected")}</p>}
+                {(selectedAsset?.zones ?? []).length === 0 && <p className="text-sm text-zinc-500">No zones detected for this file yet.</p>}
                 {(selectedAsset?.zones ?? []).map((zone) => (
                   <div key={zone.id} className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-3 md:grid-cols-[auto_auto_1fr_auto_auto] md:items-center">
                     <input
@@ -2747,11 +2717,11 @@ export default function App() {
                       }
                       className="h-9 w-14 rounded border border-white/20 bg-transparent"
                     />
-                    <span className="text-xs text-zinc-400">{t("app.target")}</span>
+                    <span className="text-xs text-zinc-400">Target</span>
 
                     <div className="md:col-span-5 grid gap-2 md:grid-cols-3">
                       <label className="text-xs text-zinc-400">
-                        {t("app.hueMatch")}
+                        Hue Match
                         <input
                           type="range"
                           min={0.06}
@@ -2767,7 +2737,7 @@ export default function App() {
                         />
                       </label>
                       <label className="text-xs text-zinc-400">
-                        {t("app.saturationMatch")}
+                        Saturation Match
                         <input
                           type="range"
                           min={0.2}
@@ -2783,7 +2753,7 @@ export default function App() {
                         />
                       </label>
                       <label className="text-xs text-zinc-400">
-                        {t("app.valueMatch")}
+                        Value Match
                         <input
                           type="range"
                           min={0.2}
@@ -2807,16 +2777,16 @@ export default function App() {
 
           {activeTab === "vfxRecolor" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.06 }}>
-              <h2 className="text-xl font-medium text-white">{t("app.vfxRecolorSettings")}</h2>
+              <h2 className="text-xl font-medium text-white">VFX Recolor Settings</h2>
               <label className="mt-4 block text-sm text-zinc-300">
-                {t("app.vfxParserMode")}
+                VFX Parser Mode
                 <select
                   value={vfxMode}
                   onChange={(e) => setVfxMode(e.target.value as VfxMode)}
                   className="mt-2 w-full rounded-lg border border-white/15 bg-zinc-900 px-3 py-2 text-sm text-zinc-100"
                 >
-                  <option value="safe">{t("app.vfxModeSafe")}</option>
-                  <option value="aggressive">{t("app.vfxModeAggressive")}</option>
+                  <option value="safe">Safe (birthColor + color blocks only)</option>
+                  <option value="aggressive">Aggressive (all vec4 tuples)</option>
                 </select>
               </label>
               <label className="mt-3 flex items-center gap-2 text-sm text-zinc-300">
@@ -2845,13 +2815,13 @@ export default function App() {
               </button>
 
               <div className="mt-6">
-                <h3 className="text-lg font-medium text-white">{t("app.selectedPythonFile")}</h3>
+                <h3 className="text-lg font-medium text-white">Selected Python File</h3>
                 <p className="mt-2 text-xs text-zinc-400">
                   VFX Recolor works on one file at a time to keep edits isolated.
                 </p>
                 <div className="mt-3 max-h-56 overflow-auto rounded-lg border border-white/10 bg-white/[0.03] p-2 text-xs text-zinc-300">
                   {!recolorFile ? (
-                    <p className="text-zinc-500">{t("app.noPySelected")}</p>
+                    <p className="text-zinc-500">No .py selected for recolor.</p>
                   ) : (
                     <div>
                       {(() => {
@@ -2864,7 +2834,7 @@ export default function App() {
                 </div>
                 {recolorFileKey && (
                   <div className="mt-3 rounded-lg border border-white/10 bg-black/30 p-3 text-xs text-zinc-300">
-                    <p className="text-zinc-200">{t("app.fileHealthCheck")}</p>
+                    <p className="text-zinc-200">Selected file health check</p>
                     <p className="mt-1 text-zinc-500">Fixable: {selectedRecolorHealth.fixableWarnings.length} | Warnings: {selectedRecolorHealth.warnings.length}</p>
                     {selectedRecolorHealth.fixableWarnings.length > 0 && (
                       <ul className="mt-2 space-y-1 text-amber-300">
@@ -3159,7 +3129,6 @@ export default function App() {
           )}
         </section>
 
-        {activeTab !== "vfxBlockEditor" && (
         <motion.aside
           className="space-y-6"
           initial={{ opacity: 0, x: 14 }}
@@ -3170,7 +3139,7 @@ export default function App() {
             <>
               <div ref={previewPanelRef} className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-xl font-medium text-white">{t("app.selectedFilePreview")}</h2>
+                  <h2 className="text-xl font-medium text-white">Selected File Preview</h2>
                   <button
                     type="button"
                     onClick={togglePreviewFullscreen}
@@ -3216,14 +3185,14 @@ export default function App() {
                       {selectedAsset?.previewOriginal ? (
                         <img src={selectedAsset.previewOriginal} alt="Original preview" className="h-72 w-full object-contain" />
                       ) : (
-                        <div className="flex h-56 items-center justify-center text-sm text-zinc-500">{t("app.originalPreview")}</div>
+                        <div className="flex h-56 items-center justify-center text-sm text-zinc-500">Original preview</div>
                       )}
                     </div>
                     <div className="overflow-hidden rounded-lg border border-cyan-400/20 bg-black/40">
                       {selectedAsset?.previewProcessed ? (
                         <img src={selectedAsset.previewProcessed} alt="Processed preview" className="h-72 w-full object-contain" />
                       ) : (
-                        <div className="flex h-56 items-center justify-center text-sm text-zinc-500">{t("app.processedPreview")}</div>
+                        <div className="flex h-56 items-center justify-center text-sm text-zinc-500">Processed preview</div>
                       )}
                     </div>
                   </div>
@@ -3254,7 +3223,7 @@ export default function App() {
 
                 <div className="rounded-lg border border-white/10 bg-white/[0.04] p-3 text-xs text-zinc-300">
                   <div className="flex items-center justify-between">
-                    <span>{t("app.coverage")}</span>
+                    <span>Coverage</span>
                     <span>
                       {previewStats.recoloredPixels.toLocaleString()} / {previewStats.eligiblePixels.toLocaleString()} px
                     </span>
@@ -3272,13 +3241,13 @@ export default function App() {
                   {previewUncoveredMapUrl ? (
                     <img src={previewUncoveredMapUrl} alt="Uncovered heatmap" className="max-h-40 w-full object-contain" />
                   ) : (
-                    <div className="flex h-28 items-center justify-center text-xs text-zinc-500">{t("app.uncoveredHeatmap")}</div>
+                    <div className="flex h-28 items-center justify-center text-xs text-zinc-500">Uncovered heatmap</div>
                   )}
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h3 className="text-lg font-medium text-white">{t("app.assetProcessingControls")}</h3>
+                <h3 className="text-lg font-medium text-white">Asset Processing Controls</h3>
                 <label className="block text-sm text-zinc-300">
                   Intensity {settings.intensity.toFixed(2)}
                   <input
@@ -3321,9 +3290,9 @@ export default function App() {
 
           {activeTab === "vfxRecolor" && (
             <div className="space-y-3">
-              <h2 className="text-xl font-medium text-white">{t("app.vfxPreview")}</h2>
+              <h2 className="text-xl font-medium text-white">VFX Preview</h2>
               <div className="rounded-lg border border-cyan-400/20 bg-black/40 p-4">
-                <div className="text-xs uppercase tracking-[0.14em] text-zinc-400">{t("app.selectedVfxColor")}</div>
+                <div className="text-xs uppercase tracking-[0.14em] text-zinc-400">Selected VFX Color</div>
                 <div className="mt-3 h-12 rounded" style={{ backgroundColor: rgbToHex(vfxColor) }} />
                 <p className="mt-3 text-xs text-zinc-400">
                   The VFX tab uses an exclusive color map for .py files and does not depend on DDS zone settings.
@@ -3362,8 +3331,8 @@ export default function App() {
 
           <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-white">{t("app.output")}</span>
-              <span className="text-xs text-zinc-400">{t("app.autoPromptOnBuild")}</span>
+              <span className="text-sm font-medium text-white">Output</span>
+              <span className="text-xs text-zinc-400">Auto prompt on build</span>
             </div>
             <div className="space-y-2">
               <p className="text-xs text-zinc-400">
@@ -3373,7 +3342,7 @@ export default function App() {
             </div>
 
             <div className="mt-4 mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-white">{t("app.status")}</span>
+              <span className="text-sm font-medium text-white">Status</span>
               <span className="text-xs text-zinc-400">{status.progress}%</span>
             </div>
             <div className="h-2 rounded-full bg-zinc-800">
@@ -3416,25 +3385,9 @@ export default function App() {
           <div className="text-xs text-zinc-500">
             Loaded: {pngAssets.length} DDS | {vfxFiles.length} VFX .py | {skinFiles.length} Skin .py | {animationFiles.length} Animation .py
           </div>
-          <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">{t("app.builtBy")}</div>
+          <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Built by VISION4RIO</div>
         </motion.aside>
-        )}
       </main>
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-      <ChangelogModal open={changelogOpen} onClose={() => setChangelogOpen(false)} />
-      <AnimatePresence>
-        {splashOpen && (
-          <motion.div key="splash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} onClick={() => { setSplashOpen(false); try { window.localStorage.setItem("cts.splashSeenV2", "1"); } catch {} }} className="fixed inset-0 z-[3000] flex cursor-pointer items-center justify-center bg-zinc-950">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_10%,rgba(56,189,248,0.3),transparent_42%),radial-gradient(circle_at_80%_15%,rgba(167,139,250,0.3),transparent_38%)]" />
-            <motion.div initial={{ opacity: 0, y: 30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.7, ease: "easeOut" }} className="relative max-w-2xl px-8 text-center">
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }} className="text-5xl font-bold tracking-tight text-white md:text-6xl">{t("topbar.appName")}</motion.h1>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.5 }} className="mt-3 inline-block rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1 text-sm font-semibold text-cyan-200">v2.0 — {t("tabs.vfxBlockEditor")}</motion.div>
-              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0, duration: 0.5 }} className="mt-6 text-lg text-zinc-300">{t("topbar.appTagline")}</motion.p>
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6, duration: 0.5 }} className="mt-8 text-xs uppercase tracking-[0.3em] text-zinc-500">{t("topbar.appCredits")}</motion.p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

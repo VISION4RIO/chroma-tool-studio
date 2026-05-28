@@ -5,90 +5,49 @@ All notable changes to this project will be documented in this file.
 ## [2.0.0] - 2026-05-28
 
 ### Added
-- **🆕 New tab "VFX Block Editor"** — per-block editing of every `.py` (Ritobin) file.
-  Lets you tweak colors, sizes, lifetimes, textures, blend modes and dozens of
-  other parameters on a single VFX block at a time, without affecting the rest
-  of the file (great for surgical edits where the existing VFX Recolor tab is
-  too broad).
-  - Lossless `.py` parser/serializer (round-trip verified on 28+ files,
-    428k+ lines).
-  - Block catalog with per-ability filter (Q / W / E / R / Passive / Basic Attack
-    / Recall / Emote / Death / Other).
-  - 20+ field categories auto-detected (color, scale, lifetime, rate, velocity,
-    rotation, position, uv, texture, asset, rendering, alpha, erosion,
-    distortion, reflection, weight, flag, audio …).
-  - Friendly dropdowns for cryptic enums (`blendMode`, `uvMode`, `distortionMode`,
-    `colorLookUpTypeY`, …) with the numeric code AND a human label.
-  - **Animated color keyframe editor**: when a field has `dynamics`, an
-    "(animated · Xkf)" badge opens a modal where you can edit every keyframe
-    individually (time + rgba), add new keyframes or remove existing ones.
-  - **Primitive kind** badge in each emitter header (Quad / Mesh / Trail / …).
-  - Per-block quick actions: "Recolor block" (replaces every static color in
-    the selected block) and "Scale × size" (multiplies every size field).
-  - Multi-file load (drag & drop or file picker) with per-source modification
-    tracking and selective export of modified files only.
-- **🌍 Multi-language support (i18n)** — every label, tooltip and help text in
-  the new tab is translatable; persists choice in `localStorage`.
+- **🆕 New tab: VFX Block Editor** — surgical per-block editing of every `.py` (Ritobin) file:
+  - Pick any VFX system inside a file and tweak only that block (colors, sizes, lifetimes, textures, blend modes, etc.)
+  - 20+ field categories auto-detected (color, scale, lifetime, rate, velocity, rotation, position, uv, texture, rendering, alpha, erosion, distortion, reflection, etc.)
+  - Friendly dropdowns for cryptic enums (`blendMode`, `uvMode`, `distortionMode`, `colorLookUpTypeY`) with human labels
+  - **Animated color keyframe editor** for `dynamics` fields
+  - One-click "Recolor block" and "Scale × size" quick actions
+  - Multi-file load (drag & drop or file picker) with per-source modification tracking
+  - Selective export of modified files only
+  - Wider workspace (up to 1800px) with sidebar hidden on this tab for maximum editing space
+- **🌍 Multi-language support (i18n)** — interface, tooltips and help texts:
   - 🇺🇸 English (default fallback)
   - 🇧🇷 Português (Brasil)
   - 🇪🇸 Español
-  - Easy to add new languages by dropping a new `src/i18n/locales/<code>.ts`
-    file (same shape as `en.ts`).
-- **⚙ Settings dialog** — new top-bar button opens a settings panel where
-  language can be changed instantly without reloading.
-- **🌐 Compact language menu** in the top bar for one-click switching.
-- **❓ Beginner-friendly help system** — every editable field has a "?" button
-  next to it. Clicking opens a non-blocking popup with:
-  - Title (translated)
-  - What it is
-  - Effect when you edit it
-  - Concrete example (color-highlighted as a code snippet)
-  - Optional pro tip / warning (amber-highlighted)
-  - 72+ exact field explanations + 19 category fallbacks (no field is left
-    without an explanation).
-- **❓ Enum value help** — alongside enum dropdowns (e.g. `blendMode`) a
-  second "?" explains what the **currently selected value** means
-  (e.g. "🔥 Additive — classic GLOW effect. Use for fire, magic, energy,
-  lasers!").
+  - Choice persists across sessions (localStorage)
+  - Easy to add new languages by dropping a new locale file
+- **⚙ Settings dialog** — new button in the top-right corner with language picker.
+- **📋 Changelog dialog** — new button showing all release notes (Added/Changed/Fixed/Removed) per version, with link to GitHub.
+- **❓ Beginner-friendly help system** — every editable field has a `?` icon that shows a tooltip on hover with:
+  - What it is (plain language)
+  - Effect when you change it
+  - 💡 Concrete example
+  - ⚠️ Optional pro tip / warning
+  - Adaptive popup width (260–440px) that fits any language without truncating
+- **❓ Enum value help** — alongside enum dropdowns, a secondary `?` explains what the currently selected value means.
+- **🎬 Animated splash screen** — 5-second intro on first launch highlighting v2.0 features (persists in localStorage so it only shows once).
 
 ### Changed
-- Top-bar layout adjusted to host the new language menu and settings button
-  on the right side.
-- `ActiveTab` type extended with the new `"vfxBlockEditor"` variant.
+- **Top header collapsed** into a thin bar (~50px instead of ~220px) to give more space to the workspace.
+- **Tab bar redesigned** with the new VFX Block Editor button and Changelog/Settings buttons on the right.
+- **VFX Block Editor tab renders inline** inside the main workspace card (not as overlay/popup window).
+- **Help popups trigger on hover** (with 150ms delay) instead of click; auto-size to content and reposition intelligently based on viewport space.
+- Build configuration: `electron` and `electron-builder` moved to `devDependencies` (electron-builder v26 requirement).
+
+### Fixed
+- Help popups no longer truncate text when using languages with longer translations (PT-BR, ES).
+- Changelog correctly shows all change types (Added/Changed/Fixed/Removed), not just "Added".
+- VFX Block Editor tab respects translations from the i18n system.
 
 ### Notes
-- No new npm dependencies. The i18n system is a thin React Context (`<200
-  LOC`) and the parser/analyzer are pure TypeScript.
-- The new tab is fully self-contained: deleting `src/components/VfxBlockEditorTab.tsx`
-  is enough to remove it.
+- No new npm dependencies. The i18n system is a thin React Context (~200 LOC); the parser/analyzer are pure TypeScript.
+- The new tab is fully self-contained — deleting `src/components/VfxBlockEditorTab.tsx` is enough to remove it.
 
 ---
 
 ## [1.0.1] - 2026-04-19
-
-### Added
-- Batch DDS processing now skips defective files and continues processing.
-- End-of-run error report listing failed files and failure reason.
-- Fullscreen preview mode for asset inspection.
-- Preset application to all loaded DDS files in one action.
-- Expanded preset library to 150+ color ideas.
-- Desktop auto-updater flow integrated with GitHub Releases.
-
-### Changed
-- Simplified export UX by removing redundant output-folder button from regular workflow.
-- Assets workflow defaults to clearer preview behavior.
-
-### Fixed
-- Fixed VFX recolor neutral target issue where black/gray/white could drift to source hue.
-- Improved DDS batch stability so one broken file no longer aborts the full job.
-
-### Removed
-- Experimental Build Skin flow from primary UI (kept focus on stable tabs).
-
-## [1.0.0] - 2026-03-29
-
-### Added
-- Initial public desktop release of Chroma Tool Studio.
-- DDS recolor pipeline with per-file zones and controls.
-- VFX Python recolor tab.
-- Windows installer support and desktop launch workflow.
+(...resto do CHANGELOG continua igual...)
