@@ -23,7 +23,7 @@ nsis:
   allowToChangeInstallationDirectory: false
   allowElevation: true
   perMachine: true
-  uninstallDisplayName: Chroma Tool Studio 1.0.0
+  uninstallDisplayName: Chroma Tool Studio 2.0.0
   createDesktopShortcut: always
   createStartMenuShortcut: true
   runAfterFinish: true
