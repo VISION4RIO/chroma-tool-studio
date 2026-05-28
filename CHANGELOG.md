@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-05-28
+
+### Changed
+- **Splash screen now shows on every app launch** instead of only once per machine. Previously the splash was cached in `localStorage` (`cts.splashSeenV2`) and never appeared again after the first run; now it greets you every time you open Chroma Tool Studio.
+
+### Removed
+- Removed `cts.splashSeenV2` localStorage key (no longer used).
+
+---
+
 ## [2.0.0] - 2026-05-28
 
 ### Added

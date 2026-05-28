@@ -1397,8 +1397,8 @@ export default function App() {
   const { t } = useI18n();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [changelogOpen, setChangelogOpen] = useState(false);
-  const [splashOpen, setSplashOpen] = useState(() => { try { return window.localStorage.getItem("cts.splashSeenV2") !== "1"; } catch { return true; } });
-  useEffect(() => { if (!splashOpen) return; const tm = window.setTimeout(() => { setSplashOpen(false); try { window.localStorage.setItem("cts.splashSeenV2", "1"); } catch {} }, 5000); return () => window.clearTimeout(tm); }, [splashOpen]);
+  const [splashOpen, setSplashOpen] = useState(true);
+  useEffect(() => { if (!splashOpen) return; const tm = window.setTimeout(() => { setSplashOpen(false); }, 5000); return () => window.clearTimeout(tm); }, [splashOpen]);
   const [pngAssets, setPngAssets] = useState<PngAsset[]>([]);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [recolorFile, setRecolorFile] = useState<File | null>(null);
@@ -3424,7 +3424,7 @@ export default function App() {
       <ChangelogModal open={changelogOpen} onClose={() => setChangelogOpen(false)} />
       <AnimatePresence>
         {splashOpen && (
-          <motion.div key="splash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} onClick={() => { setSplashOpen(false); try { window.localStorage.setItem("cts.splashSeenV2", "1"); } catch {} }} className="fixed inset-0 z-[3000] flex cursor-pointer items-center justify-center bg-zinc-950">
+          <motion.div key="splash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} onClick={() => setSplashOpen(false)} className="fixed inset-0 z-[3000] flex cursor-pointer items-center justify-center bg-zinc-950">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_10%,rgba(56,189,248,0.3),transparent_42%),radial-gradient(circle_at_80%_15%,rgba(167,139,250,0.3),transparent_38%)]" />
             <motion.div initial={{ opacity: 0, y: 30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.7, ease: "easeOut" }} className="relative max-w-2xl px-8 text-center">
               <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }} className="text-5xl font-bold tracking-tight text-white md:text-6xl">{t("topbar.appName")}</motion.h1>
